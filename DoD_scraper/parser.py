@@ -2,6 +2,15 @@ import re
 from .utils import get_soup
 from .utils import now
 
+def parse_date(soup):
+    time = soup.select('time')[0].text
+    if 'Sept' in time:
+        return time.replace('Sept', 'Sep')
+    if 'June' in time:
+        return time.replace('June', 'Jun')
+    else:
+        return time
+
 def parse_page(url):
     """
     Argument
@@ -24,13 +33,12 @@ def parse_page(url):
     try:
         soup = get_soup(url)
         title = soup.find('div', class_= 'article-body').find('h1').text
-        time = soup.select('time')[0].text
         phrases = soup.find('div', class_= 'article-body')
         content = ''.join(re.split('[0-9]{1,2}, [0-9]{4}', re.sub('\n|\r|\xa0', '', phrases.text))[1:])
 
         json_object = {
             'title' : title,
-            'time' : time,
+            'time' : parse_date(soup),
             'content' : content,
             'url' : url,
             'scrap_time' : now()

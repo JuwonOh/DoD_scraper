@@ -109,7 +109,6 @@ def get_last_newpage_num():
     last_page = [i.find('a')['href'] for i in last_page_list][-1:]
     return last_page
 
-
 url_transcript = 'http://dod.defense.gov/News/Transcripts/?Page={}/'
 
 def get_latest_alltrans(begin_date, max_num=10, sleep=1.0):
