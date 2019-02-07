@@ -7,7 +7,7 @@ def parse_date(soup):
     if 'Sept' in time:
         return time.replace('Sept', 'Sep')
     if 'June' in time:
-        return time.replace('June', 'Jun')
+        return time.replace('June', 'Jun.')
     else:
         return time
 
