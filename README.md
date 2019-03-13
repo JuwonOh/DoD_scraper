@@ -1,6 +1,6 @@
 # DoD_scraper
 
-미국 국방부(https://www.cato.org/)의 자료들을 받아오기 위한 크롤러입니다.
+미국 국방부(https://www.cato.org/)의 Transcript, Advisories, Releases, Speeches들을 받아오기 위한 크롤러입니다.
 
 ## User guide
 
