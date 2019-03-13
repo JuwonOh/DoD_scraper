@@ -51,7 +51,6 @@ for i, json_obj in enumerate(yield_latest_allblog(begin_date, max_num, sleep)):
 [9 / 10] (December 19, 2018) How Legalizing Marijuana Is  Securing the Border: The Border Wall, Drug Smuggling, and Lessons for Immigration Policy
 [10 / 10] (December 19, 2018) Militarization Fails to Enhance Police Safety or Reduce Crime but May Harm Police Reputation
 
-
 Stop scrapping. 10 / 10 news was scrapped
 The oldest news has been created after 2018-07-01
 ```
