@@ -1,15 +1,21 @@
 import re
 from .utils import get_soup
 from .utils import now
+from dateutil.parser import parse
+from .utils import strf_to_datetime
+from .utils import news_dateformat
+
+def parse_title(soup):
+    title = soup.find('div', class_= 'article-body')
+    return title.find('h1').text
+
+def parse_content(soup):
+    content = soup.find('div', class_= 'article-body')
+    return content.get_text()
 
 def parse_date(soup):
-    time = soup.select('time')[0].text
-    if 'Sept' in time:
-        return time.replace('Sept', 'Sep')
-    if 'June' in time:
-        return time.replace('June', 'Jun.')
-    else:
-        return time
+    time = soup.select('time')[0]
+    return parse(time.text)
 
 def parse_page(url):
     """
@@ -32,14 +38,12 @@ def parse_page(url):
 
     try:
         soup = get_soup(url)
-        title = soup.find('div', class_= 'article-body').find('h1').text
-        phrases = soup.find('div', class_= 'article-body')
-        content = ''.join(re.split('[0-9]{1,2}, [0-9]{4}', re.sub('\n|\r|\xa0', '', phrases.text))[1:])
+
 
         json_object = {
-            'title' : title,
+            'title' : parse_title(soup),
             'time' : parse_date(soup),
-            'content' : content,
+            'content' : parse_content(soup),
             'url' : url,
             'scrap_time' : now()
         }

@@ -1,24 +1,31 @@
 import argparse
 import json
 import os
-from Cato_scraper import yield_latest_allnews
-from Cato_scraper import strf_to_datetime
-from Cato_scraper import news_dateformat
+import re
+from DoD_scraper import get_latest_allnews
+from DoD_scraper import get_latest_alltrans
+from DoD_scraper import get_latest_allrelease
+from DoD_scraper import get_latest_advisor
+from DoD_scraper import get_latest_speech
+from DoD_scraper import strf_to_datetime
+from DoD_scraper import news_dateformat
 
 
 def save(json_obj, directory):
     url = json_obj['url']
-    category, title = [p for p in url.split('/') if p][-2:]
-    dt = strf_to_datetime(json_obj['time'], news_dateformat)
-    name = '{}-{}-{}_{}_{}'.format(dt.year, dt.month, dt.day, category, title[:50])
+    category = [p for p in url.split('/') if p][-4]
+    title = [p for p in url.split('/') if p][-1]
+    dt = json_obj['time']
+    name = '{}-{}-{}_{}_{}'.format(dt.year, dt.month, dt.day, category, re.sub("[\/:*?\<>|]","", title[:50]))
     filepath = '{}/{}.json'.format(directory, name)
     with open(filepath, 'w', encoding='utf-8') as fp:
-        json.dump(json_obj, fp, indent=2, ensure_ascii=False)
+        json.dump(json_obj, fp, indent=2, ensure_ascii=False, sort_keys=True, default=str)
 
 def scraping(begin_date, max_num, sleep, directory, verbose):
 
     n_exceptions = 0
-    for i, json_obj in enumerate(yield_latest_allnews(begin_date, max_num, sleep)):
+#transcript
+    for i, json_obj in enumerate(get_latest_alltrans(begin_date, max_num, sleep)):
         try:
             save(json_obj, directory)
         except Exception as e:
@@ -32,13 +39,63 @@ def scraping(begin_date, max_num, sleep, directory, verbose):
             print('[{} / {}] ({}) {}'.format(i+1, max_num, time, title))
 
     if n_exceptions > 0:
-        print('Exist %d exceptions' % n_exceptions)
+        print('Exist %d transcripts exceptions ' % n_exceptions)
+# Releases
+    for i, json_obj in enumerate(get_latest_allrelease(begin_date, max_num, sleep)):
+        try:
+            save(json_obj, directory)
+        except Exception as e:
+            n_exceptions += 1
+            print(e)
+            continue
+
+        if verbose:
+            title = json_obj['title']
+            time = json_obj['time']
+            print('[{} / {}] ({}) {}'.format(i+1, max_num, time, title))
+
+    if n_exceptions > 0:
+        print('Exist %d newsrealease exceptions' % n_exceptions)
+# advisor
+    for i, json_obj in enumerate(get_latest_advisor(begin_date, max_num, sleep)):
+        try:
+            save(json_obj, directory)
+        except Exception as e:
+            n_exceptions += 1
+            print(e)
+            continue
+
+        if verbose:
+            title = json_obj['title']
+            time = json_obj['time']
+            print('[{} / {}] ({}) {}'.format(i+1, max_num, time, title))
+
+    if n_exceptions > 0:
+        print('Exist %d advisor exceptions' % n_exceptions)
+
+# speech
+    for i, json_obj in enumerate(get_latest_speech(begin_date, max_num, sleep)):
+        try:
+            save(json_obj, directory)
+        except Exception as e:
+            n_exceptions += 1
+            print(e)
+            continue
+
+        if verbose:
+            title = json_obj['title']
+            time = json_obj['time']
+            print('[{} / {}] ({}) {}'.format(i+1, max_num, time, title))
+
+    if n_exceptions > 0:
+        print('Exist %d speech exceptions' % n_exceptions)
+
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--begin_date', type=str, default='2019-01-10', help='datetime YYYY-mm-dd')
+    parser.add_argument('--begin_date', type=str, default='2018-07-01', help='datetime YYYY-mm-dd')
     parser.add_argument('--directory', type=str, default='./output/', help='Output directory')
-    parser.add_argument('--max_num', type=int, default=100, help='Maximum number of news to be scraped')
+    parser.add_argument('--max_num', type=int, default=1000, help='Maximum number of news to be scraped')
     parser.add_argument('--sleep', type=float, default=1.0, help='Sleep time for each news')
     parser.add_argument('--verbose', dest='VERBOSE', action='store_true')
 
